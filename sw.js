@@ -4,7 +4,7 @@ var VERSION = "v9";
 var temp = ["/vue.js", "/static/mm1.jpg"]; // "/", "/index.html",
 // 缓存
 self.addEventListener("install", function(event) {
-  // self.skipWaiting();
+  // self.skipWaiting(); // 开发环境使用这个方法跳过waiting状态直接接管service work
   event.waitUntil(
     caches.open(VERSION).then(function(cache) {
       return cache.addAll(temp);
