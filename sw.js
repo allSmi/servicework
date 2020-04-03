@@ -1,7 +1,10 @@
-var VERSION = "v1";
-var temp = ["index.html", "./vue.js", "./static/mm1.jpg"];
+var VERSION = "v9";
+
+// 实际开发中需要缓存的文件应该是类似vue，jquery这些不会改变的库文件
+var temp = ["/vue.js", "/static/mm1.jpg"]; // "/", "/index.html",
 // 缓存
 self.addEventListener("install", function(event) {
+  // self.skipWaiting();
   event.waitUntil(
     caches.open(VERSION).then(function(cache) {
       return cache.addAll(temp);
@@ -25,24 +28,39 @@ self.addEventListener("activate", function(event) {
   );
 });
 
-// 捕获请求并返回缓存数据
+// 捕获请求并返回缓存数据  https://developer.mozilla.org/zh-CN/docs/Web/API/Cache/match
 self.addEventListener("fetch", function(event) {
+  // var path = event.request.url.replace("http://localhost", "");
+  console.log("捕获请求：" + event.request.url);
+
+  // if (temp.indexOf(path) > -1) {
+  // 如果在缓存列表中就走以下流程,没有在缓存列表中的资源就会走正常的网络请求
   event.respondWith(
+    // caches.match(request) 返回匹配到的第一个请求的缓存数据
     caches
       .match(event.request)
-      .catch(function() {
-        return fetch(event.request);
-      })
       .then(function(response) {
-        if (temp.indexOf(event.request)) {
-        }
-        caches.open(VERSION).then(function(cache) {
-          cache.put(event.request, response);
-        });
         return response.clone();
       })
       .catch(function() {
-        return caches.match("./static/mm1.jpg");
+        // 在缓存中没有找到需要的资源，则进行网络请求
+
+        console.log("开始请求资源：" + event.request.url);
+
+        return fetch(event.request).then(response => {
+          // 请求成功后进行缓存
+          return caches.open(VERSION).then(function(cache) {
+            console.log("开始缓存资源：" + event.request.url);
+
+            return cache.put(event.request, response.clone()).then(function() {
+              console.log("缓存资源成功");
+              return response.clone();
+            });
+          });
+        });
       })
   );
+  // } else {
+
+  // }
 });

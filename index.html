@@ -7,13 +7,20 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <script src="./vue.js"></script>
+  <script src="./aaa.js"></script>
+  <script src="https://cdn.bootcss.com/vue/2.6.11/vue.js"></script>
 </head>
 
 <body>
+  <div>666</div>
   <img src="./static/mm1.jpg" alt="" srcset="">
   <script>
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker.register('./sw.js')
+    // https://blog.worktile.com/tech-tech-service-worker/
+    // 页面在首次打开的时候就进行缓存sw的资源，因为sw内预缓存资源是需要下载的，sw线程一旦在首次打开时下载资源，将会占用主线程的带宽，以及加剧对cpu和内存的使用，而且Service worker 启动之前，它必须先向浏览器 UI 线程申请分派一个线程，再回到 IO 线程继续执行 service worker 线程的启动流程，并且在随后多次在ui线程和io线程之间切换，所以在启动过程中会存在一定的性能开销，在手机端尤其严重。况且首次打开各种资源都非常宝贵，完全没有必要争第一次打开页面就要缓存资源。正确的做法是，页面加载完以后sw的事。
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js')
+      });
     }
 
   </script>
